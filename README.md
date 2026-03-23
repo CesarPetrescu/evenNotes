@@ -1,8 +1,22 @@
 # Even Notes
 
-Real-time notes for Even G2 smart glasses.
+> 📝 Real-time notes for Even G2 smart glasses.
+
+![Status](https://img.shields.io/badge/status-prototype-6b7280?style=flat-square)
+![Backend](https://img.shields.io/badge/backend-Node.js%20%2B%20Express-43853d?style=flat-square&logo=nodedotjs&logoColor=white)
+![Admin UI](https://img.shields.io/badge/admin-Vanilla%20JS-f7df1e?style=flat-square&logo=javascript&logoColor=222)
+![Realtime](https://img.shields.io/badge/realtime-WebSocket-0f172a?style=flat-square)
+![Glasses App](https://img.shields.io/badge/glasses-TypeScript%20%2B%20Vite-3178c6?style=flat-square&logo=typescript&logoColor=white)
+![Device](https://img.shields.io/badge/device-Even%20G2-111827?style=flat-square)
 
 Even Notes is a small end-to-end prototype for writing notes in a browser and seeing them update live on Even G2 glasses. It supports plain text notes, uploaded images, and quick sketches, then pushes the latest note list to the glasses runtime over WebSocket.
+
+**Highlights**
+
+- ⚡ Live WebSocket sync from browser to glasses
+- 📱 Simple admin UI for writing, editing, pinning, and managing notes
+- 🖼️ Support for text notes, uploaded images, and quick sketches
+- 👓 Even Hub runtime built for the Even G2 display flow
 
 ## What It Includes
 
