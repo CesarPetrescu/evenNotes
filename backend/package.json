@@ -1,0 +1,20 @@
+{
+  "name": "even-notes-backend",
+  "version": "1.0.0",
+  "description": "Notes backend with WebSocket live sync for Even G2 glasses",
+  "scripts": {
+    "postinstall": "npm --prefix ../even-app install",
+    "build:glasses": "npm --prefix ../even-app run build",
+    "predev": "npm run build:glasses",
+    "dev": "node server.js",
+    "prestart": "npm run build:glasses",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^4.21.0",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "package_id": "com.photonspark.evennotes",
+  "edition": "20260321",
+  "name": "even-notes",
+  "version": "0.1.1",
+  "min_app_version": "0.1.0",
+  "tagline": "Live notes from your desktop to your glasses",
+  "description": "Write notes on your computer and see them appear instantly on your Even G2 glasses. Supports pinning, multi-page navigation, and real-time sync via WebSocket.",
+  "author": "Cesar Petrescu",
+  "entrypoint": "index.html"
+}

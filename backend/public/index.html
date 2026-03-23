@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Even Notes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <span class="brand-kicker">Phone Pad</span>
+          <span class="brand-title">Even Notes</span>
+        </div>
+        <div class="status-pill">
+          <span class="status-dot disconnected" id="statusDot"></span>
+          <span id="statusText">Connecting...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <section class="card hero">
+        <h1>Write, upload, draw. Then send it to the glasses.</h1>
+        <p>Text notes still work as before, but now each note can also carry an uploaded image or a quick sketch from the built-in canvas pad.</p>
+        <div class="meta-row">
+          <div class="meta-chip">
+            <span class="meta-chip-label">Notes</span>
+            <span class="meta-chip-value" id="noteCount">0 notes</span>
+          </div>
+          <div class="meta-chip">
+            <span class="meta-chip-label">Sync</span>
+            <span class="meta-chip-value" id="wsInfo">Waiting for live link</span>
+          </div>
+          <div class="meta-chip">
+            <span class="meta-chip-label">Media</span>
+            <span class="meta-chip-value" id="mediaMode">Text only</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card composer">
+        <p class="section-label">New Note</p>
+        <div class="field">
+          <label for="newTitle">Title</label>
+          <input class="input" type="text" id="newTitle" placeholder="What should show up first?" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="newContent">Note body</label>
+          <textarea class="textarea" id="newContent" placeholder="Write the note once. It syncs to the glasses list automatically." rows="4"></textarea>
+        </div>
+
+        <section class="media-studio">
+          <div class="media-head">
+            <h3>Media Studio</h3>
+            <div class="media-tools">
+              <input class="hidden-input" type="file" id="composerFile" accept="image/png,image/jpeg,image/webp" />
+              <button class="btn" type="button" onclick="triggerComposerFile()">Upload image</button>
+              <button class="btn" type="button" onclick="useDrawingForComposer()">Use sketch</button>
+              <button class="btn btn-danger" type="button" onclick="clearComposerMedia()">Clear media</button>
+            </div>
+          </div>
+
+          <div class="media-grid">
+            <div class="drawer-wrap">
+              <div class="drawer-top">
+                <span class="drawer-title">Canvas Drawer</span>
+                <div class="edit-media-actions">
+                  <button class="btn" type="button" onclick="clearDrawingPad()">Clear pad</button>
+                </div>
+              </div>
+              <canvas class="draw-canvas" id="drawCanvas" width="960" height="540"></canvas>
+              <p class="drawer-hint">Draw with your finger or pointer. Then tap <strong>Use sketch</strong> to attach it to the next note.</p>
+            </div>
+
+            <div class="media-preview-card">
+              <div class="media-preview-top">
+                <span class="media-preview-title">Attached Media</span>
+                <span class="note-count" id="mediaBadge">Text only</span>
+              </div>
+              <div class="media-preview" id="composerMediaPreview">
+                <div class="media-empty">No image attached yet. Upload a PNG/JPG/WEBP or turn the sketch pad into a note image.</div>
+              </div>
+              <p class="media-preview-copy">Images are downscaled on the phone side before saving so they stay light enough for the backend and the glasses renderer.</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="composer-actions">
+          <p class="composer-hint">Press Enter on the title to move down. Press Ctrl+Enter or Cmd+Enter in the note field to add fast.</p>
+          <button class="btn btn-primary" onclick="addNote()">Add note</button>
+        </div>
+      </section>
+
+      <section class="card notes-panel">
+        <div class="notes-head">
+          <h2>Your Notes</h2>
+          <span class="note-count" id="notesBadge">0 items</span>
+        </div>
+        <div class="notes-list" id="notesList"></div>
+      </section>
+
+      <section class="card preview">
+        <div class="preview-head">
+          <h3>Glasses Preview</h3>
+          <span class="preview-label">List snapshot</span>
+        </div>
+        <div class="preview-screen" id="glassesPreview">Waiting for notes...</div>
+      </section>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script defer src="admin.js"></script>
+</body>
+</html>
