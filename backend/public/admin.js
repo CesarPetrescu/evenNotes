@@ -265,6 +265,7 @@
     }
 
     function refreshComposerMedia() {
+      const panel = document.getElementById('composerMediaPanel');
       const preview = document.getElementById('composerMediaPreview');
       const badge = document.getElementById('mediaBadge');
       const mode = document.getElementById('mediaMode');
@@ -279,6 +280,7 @@
       const label = composerImage.kind === 'drawing' ? 'Sketch attached' : 'Image attached';
       badge.textContent = label;
       mode.textContent = label;
+      if (panel) panel.open = true;
       preview.innerHTML = `<img src="${escAttr(composerImage.dataUrl)}" alt="Composer media preview" />`;
     }
 
@@ -453,56 +455,84 @@
         const isEditing = editingId === note.id;
         const time = formatTime(note.updated_at);
         const currentImage = isEditing ? editDraftImage : note.image;
+        const title = note.title || 'Untitled';
 
         if (isEditing) {
+          const mediaLabel = currentImage
+            ? currentImage.kind === 'drawing' ? 'Sketch attached' : 'Image attached'
+            : 'No media attached';
+
           return `
-            <div class="note-card editing" data-id="${note.id}">
-              <div class="field">
-                <label>Title</label>
-                <input class="note-title-input" value="${escHtml(note.title)}" />
-              </div>
-              <div class="field" style="margin-top:10px">
-                <label>Body</label>
-                <textarea class="note-content-input" rows="4">${escHtml(note.content)}</textarea>
-              </div>
-              <div class="edit-media">
-                <input class="hidden-input" id="editFile-${note.id}" type="file" accept="image/png,image/jpeg,image/webp" onchange="handleEditFileChange(event, '${note.id}')" />
-                ${currentImage ? `<img src="${escAttr(currentImage.dataUrl)}" alt="Edit media preview" />` : '<div class="media-empty">No image attached to this note.</div>'}
-                <div class="edit-media-actions" style="margin-top:10px">
-                  <button class="btn" type="button" onclick="triggerEditFile('${note.id}')">Replace image</button>
-                  <button class="btn" type="button" onclick="useDrawingForEdit()">Use current sketch</button>
-                  <button class="btn btn-danger" type="button" onclick="removeEditImage()">Remove image</button>
+            <article class="note-card editing" data-id="${note.id}">
+              <div class="note-card-head">
+                <div>
+                  <div class="note-tag-row">
+                    <span class="note-tag note-tag-live">Editing</span>
+                    ${note.pinned ? '<span class="note-tag note-tag-pin">Pinned</span>' : ''}
+                  </div>
+                  <h3 class="note-title">${escHtml(title)}</h3>
                 </div>
-              </div>
-              <div class="note-meta">
                 <span class="note-time">${time}</span>
-                <div class="note-actions">
-                  <button class="btn" onclick="cancelEdit()">Cancel</button>
-                  <button class="btn btn-primary" onclick="saveEdit('${note.id}')">Save</button>
+              </div>
+
+              <div class="note-edit-grid">
+                <div class="field">
+                  <label>Title</label>
+                  <input class="note-title-input" value="${escHtml(note.title)}" />
+                </div>
+                <div class="field">
+                  <label>Body</label>
+                  <textarea class="note-content-input" rows="4">${escHtml(note.content)}</textarea>
                 </div>
               </div>
-            </div>`;
+
+              <details class="note-media-panel" ${currentImage ? 'open' : ''}>
+                <summary>
+                  <span>Optional media</span>
+                  <span class="summary-note">${mediaLabel}</span>
+                </summary>
+                <div class="note-media-panel-body">
+                  <input class="hidden-input" id="editFile-${note.id}" type="file" accept="image/png,image/jpeg,image/webp" onchange="handleEditFileChange(event, '${note.id}')" />
+                  ${currentImage ? `<img class="edit-media-preview" src="${escAttr(currentImage.dataUrl)}" alt="Edit media preview" />` : '<div class="media-empty">No image attached to this note.</div>'}
+                  <div class="edit-media-actions">
+                    <button class="btn" type="button" onclick="triggerEditFile('${note.id}')">Replace image</button>
+                    <button class="btn" type="button" onclick="useDrawingForEdit()">Use current sketch</button>
+                    <button class="btn btn-danger" type="button" onclick="removeEditImage()">Remove image</button>
+                  </div>
+                </div>
+              </details>
+
+              <div class="note-actions">
+                <button class="btn" onclick="cancelEdit()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEdit('${note.id}')">Save</button>
+              </div>
+            </article>`;
         }
 
+        const tags = [
+          note.pinned ? '<span class="note-tag note-tag-pin">Pinned</span>' : '',
+          note.image
+            ? `<span class="note-tag note-tag-media">${note.image.kind === 'drawing' ? 'Sketch' : 'Image'}</span>`
+            : '<span class="note-tag note-tag-live">Text</span>'
+        ].filter(Boolean).join('');
+
         return `
-          <div class="note-card ${note.pinned ? 'pinned' : ''}" data-id="${note.id}">
-            <div class="note-top">
-              <div class="note-title">${escHtml(note.title)}</div>
-              <button class="btn btn-pin ${note.pinned ? 'active' : ''}" onclick="togglePin('${note.id}')" title="${note.pinned ? 'Unpin note' : 'Pin note'}">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="${note.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 2l2.09 6.26L21 9.27l-5 4.87L17.18 21 12 17.27 6.82 21 8 14.14 3 9.27l6.91-1.01z"/></svg>
-              </button>
-            </div>
-            ${note.content ? `<div class="note-content">${escHtml(note.content)}</div>` : ''}
-            ${note.image ? `<span class="media-chip">${note.image.kind === 'drawing' ? 'Sketch note' : 'Image note'}</span>` : ''}
-            ${note.image ? `<img class="note-media" src="${escAttr(note.image.dataUrl)}" alt="Note media" />` : ''}
-            <div class="note-meta">
-              <span class="note-time">${time}</span>
-              <div class="note-actions">
-                <button class="btn" onclick="startEdit('${note.id}')">Edit</button>
-                <button class="btn btn-danger" onclick="deleteNote('${note.id}')">Delete</button>
+          <article class="note-card ${note.pinned ? 'pinned' : ''}" data-id="${note.id}">
+            <div class="note-card-head">
+              <div>
+                <div class="note-tag-row">${tags}</div>
+                <h3 class="note-title">${escHtml(title)}</h3>
               </div>
+              <span class="note-time">${time}</span>
             </div>
-          </div>`;
+            ${note.content ? `<div class="note-content">${escHtml(note.content)}</div>` : '<div class="note-content note-content-empty">No text body.</div>'}
+            ${note.image ? `<img class="note-media" src="${escAttr(note.image.dataUrl)}" alt="Note media" />` : ''}
+            <div class="note-actions">
+              <button class="btn btn-ghost ${note.pinned ? 'is-active' : ''}" onclick="togglePin('${note.id}')">${note.pinned ? 'Unpin' : 'Pin'}</button>
+              <button class="btn" onclick="startEdit('${note.id}')">Edit</button>
+              <button class="btn btn-danger" onclick="deleteNote('${note.id}')">Delete</button>
+            </div>
+          </article>`;
       }).join('');
     }
 

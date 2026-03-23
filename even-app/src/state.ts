@@ -1,25 +1,24 @@
-import type { BridgeInstance, Note, ViewMode } from './types';
+import type { Bridge, MenuAction, Note, ViewMode } from './types';
+
+export const NOTES_PER_PAGE = 6;
+
+export const BASE_MENU_OPTIONS: { action: MenuAction; label: string }[] = [
+  { action: 'next', label: 'NEXT NOTE' },
+  { action: 'prev', label: 'PREVIOUS NOTE' },
+  { action: 'back', label: 'BACK TO LIST' }
+];
 
 export const state = {
   notes: [] as Note[],
-  ws: null as WebSocket | null,
+  bridge: null as Bridge | null,
+  bridgeReady: false,
   wsConnected: false,
-  bridge: null as BridgeInstance | null,
-  bridgeConnected: false,
-  startupCreated: false,
-  bridgeSync: Promise.resolve(),
+  view: 'list' as ViewMode,
   listPage: 0,
   selectedIndex: 0,
-  detailNoteIndex: 0,
-  view: 'list' as ViewMode,
-  logs: [] as string[],
-  clickCooldownUntil: 0,
-  visualFallbackNoteId: null as string | null,
-  lastSyncLabel: ''
+  detailIndex: 0,
+  menuDefault: 0,
+  logs: [] as string[]
 };
 
-export const app = document.querySelector<HTMLDivElement>('#app');
-
-if (!app) {
-  throw new Error('Missing #app root');
-}
+export const app = document.querySelector<HTMLDivElement>('#app')!;

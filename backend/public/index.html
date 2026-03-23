@@ -11,108 +11,118 @@
 </head>
 <body>
   <div class="app">
-    <div class="topbar">
+    <header class="topbar">
       <div class="topbar-inner">
         <div class="brand">
-          <span class="brand-kicker">Phone Pad</span>
-          <span class="brand-title">Even Notes</span>
+          <span class="brand-kicker">Phone app</span>
+          <h1 class="brand-title">Even Notes</h1>
         </div>
         <div class="status-pill">
           <span class="status-dot disconnected" id="statusDot"></span>
           <span id="statusText">Connecting...</span>
         </div>
       </div>
-    </div>
+    </header>
 
-    <div class="stack">
-      <section class="card hero">
-        <h1>Write, upload, draw. Then send it to the glasses.</h1>
-        <p>Text notes still work as before, but now each note can also carry an uploaded image or a quick sketch from the built-in canvas pad.</p>
-        <div class="meta-row">
-          <div class="meta-chip">
-            <span class="meta-chip-label">Notes</span>
-            <span class="meta-chip-value" id="noteCount">0 notes</span>
-          </div>
-          <div class="meta-chip">
-            <span class="meta-chip-label">Sync</span>
-            <span class="meta-chip-value" id="wsInfo">Waiting for live link</span>
-          </div>
-          <div class="meta-chip">
-            <span class="meta-chip-label">Media</span>
-            <span class="meta-chip-value" id="mediaMode">Text only</span>
-          </div>
-        </div>
-      </section>
-
+    <main class="stack">
       <section class="card composer">
-        <p class="section-label">New Note</p>
-        <div class="field">
-          <label for="newTitle">Title</label>
-          <input class="input" type="text" id="newTitle" placeholder="What should show up first?" autocomplete="off" />
-        </div>
-        <div class="field">
-          <label for="newContent">Note body</label>
-          <textarea class="textarea" id="newContent" placeholder="Write the note once. It syncs to the glasses list automatically." rows="4"></textarea>
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Quick note</p>
+            <h2>Write once, send it live.</h2>
+            <p class="section-copy">Start with text. Open the media drawer only if the note needs an image or a sketch.</p>
+          </div>
+          <button class="btn btn-primary add-btn" type="button" onclick="addNote()">Add note</button>
         </div>
 
-        <section class="media-studio">
-          <div class="media-head">
-            <h3>Media Studio</h3>
-            <div class="media-tools">
+        <div class="field-group">
+          <div class="field">
+            <label for="newTitle">Title</label>
+            <input class="input" type="text" id="newTitle" placeholder="What should show up first?" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="newContent">Body</label>
+            <textarea class="textarea" id="newContent" placeholder="Short note, reminder, or checklist." rows="4"></textarea>
+          </div>
+        </div>
+
+        <details class="media-panel" id="composerMediaPanel">
+          <summary>
+            <div class="summary-copy">
+              <span class="summary-kicker">Optional media</span>
+              <strong>Attach an image or sketch</strong>
+            </div>
+            <span class="summary-value" id="mediaBadge">Text only</span>
+          </summary>
+
+          <div class="media-panel-body">
+            <div class="media-toolbar">
               <input class="hidden-input" type="file" id="composerFile" accept="image/png,image/jpeg,image/webp" />
               <button class="btn" type="button" onclick="triggerComposerFile()">Upload image</button>
               <button class="btn" type="button" onclick="useDrawingForComposer()">Use sketch</button>
               <button class="btn btn-danger" type="button" onclick="clearComposerMedia()">Clear media</button>
             </div>
-          </div>
 
-          <div class="media-grid">
-            <div class="drawer-wrap">
-              <div class="drawer-top">
-                <span class="drawer-title">Canvas Drawer</span>
-                <div class="edit-media-actions">
-                  <button class="btn" type="button" onclick="clearDrawingPad()">Clear pad</button>
+            <div class="media-layout">
+              <div class="media-preview-card">
+                <div class="media-preview-top">
+                  <span class="drawer-title">Attached media</span>
+                </div>
+                <div class="media-preview" id="composerMediaPreview">
+                  <div class="media-empty">No image attached yet. Upload a PNG, JPG, or WEBP, or turn the sketch pad into a note image.</div>
                 </div>
               </div>
-              <canvas class="draw-canvas" id="drawCanvas" width="960" height="540"></canvas>
-              <p class="drawer-hint">Draw with your finger or pointer. Then tap <strong>Use sketch</strong> to attach it to the next note.</p>
-            </div>
 
-            <div class="media-preview-card">
-              <div class="media-preview-top">
-                <span class="media-preview-title">Attached Media</span>
-                <span class="note-count" id="mediaBadge">Text only</span>
+              <div class="drawer-wrap">
+                <div class="drawer-top">
+                  <span class="drawer-title">Sketch pad</span>
+                  <button class="btn" type="button" onclick="clearDrawingPad()">Clear pad</button>
+                </div>
+                <canvas class="draw-canvas" id="drawCanvas" width="960" height="540"></canvas>
+                <p class="drawer-hint">Draw with your finger or pointer, then tap <strong>Use sketch</strong>.</p>
               </div>
-              <div class="media-preview" id="composerMediaPreview">
-                <div class="media-empty">No image attached yet. Upload a PNG/JPG/WEBP or turn the sketch pad into a note image.</div>
-              </div>
-              <p class="media-preview-copy">Images are downscaled on the phone side before saving so they stay light enough for the backend and the glasses renderer.</p>
             </div>
           </div>
-        </section>
+        </details>
 
-        <div class="composer-actions">
-          <p class="composer-hint">Press Enter on the title to move down. Press Ctrl+Enter or Cmd+Enter in the note field to add fast.</p>
-          <button class="btn btn-primary" onclick="addNote()">Add note</button>
+        <div class="signal-grid">
+          <div class="signal-chip">
+            <span class="signal-label">Notes</span>
+            <strong id="noteCount">0 notes</strong>
+          </div>
+          <div class="signal-chip">
+            <span class="signal-label">Sync</span>
+            <strong id="wsInfo">Waiting for live link</strong>
+          </div>
+          <div class="signal-chip">
+            <span class="signal-label">Media</span>
+            <strong id="mediaMode">Text only</strong>
+          </div>
         </div>
+
+        <p class="composer-hint">Press Enter on the title to move down. Press Ctrl+Enter or Cmd+Enter in the body to add fast.</p>
       </section>
 
       <section class="card notes-panel">
-        <div class="notes-head">
-          <h2>Your Notes</h2>
+        <div class="section-head section-head-tight">
+          <div>
+            <p class="section-kicker">Library</p>
+            <h2>Your notes</h2>
+          </div>
           <span class="note-count" id="notesBadge">0 items</span>
         </div>
+
+        <details class="preview-panel">
+          <summary>
+            <span>Glasses list preview</span>
+            <span class="summary-note">Optional</span>
+          </summary>
+          <div class="preview-screen" id="glassesPreview">Waiting for notes...</div>
+        </details>
+
         <div class="notes-list" id="notesList"></div>
       </section>
-
-      <section class="card preview">
-        <div class="preview-head">
-          <h3>Glasses Preview</h3>
-          <span class="preview-label">List snapshot</span>
-        </div>
-        <div class="preview-screen" id="glassesPreview">Waiting for notes...</div>
-      </section>
-    </div>
+    </main>
   </div>
 
   <div class="toast" id="toast"></div>
