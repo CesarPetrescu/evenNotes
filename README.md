@@ -9,30 +9,68 @@
 ![Glasses App](https://img.shields.io/badge/glasses-TypeScript%20%2B%20Vite-3178c6?style=flat-square&logo=typescript&logoColor=white)
 ![Device](https://img.shields.io/badge/device-Even%20G2-111827?style=flat-square)
 
-Even Notes is a small end-to-end prototype for writing notes in a browser and seeing them update live on Even G2 glasses. It supports plain text notes, uploaded images, and quick sketches, then pushes the latest note list to the glasses runtime over WebSocket.
+Even Notes is a small end-to-end project for writing notes in a browser and seeing them update live on Even G2 glasses. It includes a Node/Express backend, a phone/admin web UI, and a TypeScript Even Hub runtime for the glasses.
 
-**Highlights**
+Notes can be:
 
-- ⚡ Live WebSocket sync from browser to glasses
-- 📱 Simple admin UI for writing, editing, pinning, and managing notes
-- 🖼️ Support for text notes, uploaded images, and quick sketches
-- 👓 Even Hub runtime built for the Even G2 display flow
+- Plain text
+- Uploaded images
+- Quick sketches drawn in the admin UI
 
-## What It Includes
+The system syncs the full note list over WebSocket so the browser dashboard and glasses runtime stay aligned.
 
-- A Node.js + Express backend
-- A phone/admin web UI for writing and managing notes
-- A TypeScript Even Hub app for the glasses
+## Table Of Contents
 
-## What You Can Do
+- [At A Glance](#at-a-glance)
+- [Features](#features)
+- [Architecture](#architecture)
+- [How The System Flows](#how-the-system-flows)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Routes And Sync](#routes-and-sync)
+- [Data Model](#data-model)
+- [Behavior And Constraints](#behavior-and-constraints)
+- [Related Docs](#related-docs)
+- [Resume Summary](#resume-summary)
 
-- Create, edit, pin, and delete notes from the browser
-- Attach uploaded PNG, JPEG, or WEBP images
-- Draw sketches in the admin UI and save them as note media
-- Sync the full note list to the glasses in real time
-- Browse notes on the glasses in list and detail views
-- Preview the glasses runtime in a normal browser
-- Fall back to text mode if image rendering fails on-device
+## At A Glance
+
+| Area | Details |
+| --- | --- |
+| Purpose | Send notes from a browser to Even G2 glasses in real time |
+| Backend | Node.js, Express, `ws`, `uuid`, `dotenv` |
+| Admin UI | HTML, CSS, vanilla JavaScript |
+| Glasses App | TypeScript, Vite, `@evenrealities/even_hub_sdk` |
+| Sync Model | Full note-list broadcast over WebSocket |
+| Storage | In-memory only |
+| Media Support | Text, uploaded PNG/JPEG/WEBP images, drawn sketches |
+| Runtime Views | List view, detail view, browser preview |
+
+## Features
+
+### Admin UI
+
+- Create, edit, pin, and delete notes
+- Attach uploaded images to notes
+- Draw sketches on a built-in canvas and save them as note media
+- Preview the glasses-side list in the browser
+- Reconnect automatically if the WebSocket drops
+
+### Backend
+
+- Serves the admin UI and the glasses runtime from one Express app
+- Exposes CRUD-style note routes
+- Seeds the app with template notes on startup
+- Broadcasts note updates to connected clients over WebSocket
+- Tries fallback ports if the requested port is already in use
+
+### Glasses Runtime
+
+- Receives note snapshots over WebSocket
+- Sorts notes by pinned state and last update time
+- Renders list and detail views for the Even G2 runtime
+- Supports both text-only and image-based detail pages
+- Falls back to text mode if image rendering fails
 
 ## Architecture
 
@@ -46,57 +84,14 @@ Admin UI (/admin)
   -> Even G2 device
 ```
 
-### Runtime flow
+## How The System Flows
 
 1. A note is created or updated in the admin UI.
-2. The backend updates its in-memory `notes` array.
+2. The backend updates the in-memory `notes` array.
 3. The backend broadcasts the full note list over WebSocket.
-4. The glasses app receives, normalizes, and sorts the list.
-5. The active glasses page is rebuilt through the Even Hub SDK.
-6. If the note has visual content, the runtime uploads image data to the device container.
-
-## Stack
-
-- Backend: Node.js, Express, `ws`, `uuid`, `dotenv`
-- Admin UI: HTML, CSS, vanilla JavaScript
-- Glasses app: TypeScript, Vite, `@evenrealities/even_hub_sdk`
-
-## Project Structure
-
-```text
-backend/
-├── package.json
-├── server.js
-├── public/
-│   ├── index.html
-│   ├── admin.css
-│   └── admin.js
-└── src/
-    ├── config.js
-    ├── notes-store.js
-    ├── routes.js
-    ├── startup.js
-    ├── static-routes.js
-    ├── template-notes.js
-    ├── validators.js
-    └── websocket.js
-
-even-app/
-├── app.json
-├── index.html
-├── package.json
-├── vite.config.ts
-└── src/
-    ├── glasses.ts
-    ├── images.ts
-    ├── main.ts
-    ├── render.ts
-    ├── state.ts
-    ├── styles.css
-    ├── types.ts
-    ├── utils.ts
-    └── websocket.ts
-```
+4. The glasses app receives, normalizes, and sorts the data.
+5. The active page is rebuilt through the Even Hub SDK.
+6. If the note includes visual content, the runtime uploads image data to the image container.
 
 ## Quick Start
 
@@ -104,7 +99,7 @@ even-app/
 
 - Node.js and npm
 - Even G2 glasses if you want to test on hardware
-- Phone and dev machine on the same network for local device loading
+- Phone and development machine on the same network for local device loading
 
 ### Install
 
@@ -115,7 +110,7 @@ cd backend
 npm install
 ```
 
-`backend/package.json` runs a `postinstall` that also installs the glasses app dependencies in `../even-app`.
+The backend `postinstall` also installs the glasses app dependencies in `../even-app`.
 
 ### Run
 
@@ -124,37 +119,81 @@ cd backend
 npm run dev
 ```
 
-This will:
+This does two things:
 
-1. Build the glasses app.
-2. Start the backend server.
+1. Builds the glasses app
+2. Starts the backend server
 
 On startup the server prints:
 
 - The admin URL
 - The glasses URL
 - The WebSocket URL
-- A suggested QR command for loading the glasses app
+- A suggested `evenhub-cli qr` command for device loading
 
-## Routes
+### Open In The Browser
 
-### App routes
+- `/admin` for the note dashboard
+- `/glasses/` for the browser preview / glasses runtime output
 
-- `GET /admin` for the admin dashboard
-- `GET /glasses/` for the built glasses runtime
-- `GET /glasses-dev/` for the same built glasses output
+## Project Structure
 
-### API routes
+```text
+backend/
+├── package.json              # backend scripts and dependencies
+├── server.js                 # express server entrypoint
+├── public/
+│   ├── index.html            # admin UI markup
+│   ├── admin.css             # admin UI styles
+│   └── admin.js              # admin UI logic
+└── src/
+    ├── config.js             # port/env config
+    ├── notes-store.js        # in-memory note storage
+    ├── routes.js             # REST API routes
+    ├── startup.js            # startup banner and port fallback logic
+    ├── static-routes.js      # /admin and /glasses static hosting
+    ├── template-notes.js     # seeded notes
+    ├── validators.js         # request and payload normalization
+    └── websocket.js          # WebSocket server and broadcast logic
+
+even-app/
+├── app.json                  # Even app manifest
+├── index.html                # Vite entry HTML
+├── package.json              # glasses app scripts and deps
+├── vite.config.ts            # build config
+└── src/
+    ├── glasses.ts            # bridge sync and Even G2 page creation
+    ├── images.ts             # diagram drawing and image encoding
+    ├── main.ts               # runtime entrypoint
+    ├── render.ts             # browser-side preview rendering
+    ├── state.ts              # shared runtime state
+    ├── styles.css            # browser preview styles
+    ├── types.ts              # shared types
+    ├── utils.ts              # text and note helpers
+    └── websocket.ts          # note sync from backend
+```
+
+## Routes And Sync
+
+### App Routes
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/notes` | Return all notes |
+| `GET` | `/admin` | Admin dashboard |
+| `GET` | `/glasses/` | Built glasses runtime |
+| `GET` | `/glasses-dev/` | Same built output as `/glasses/` |
+
+### API Routes
+
+| Method | Route | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/notes` | Return the full note list |
 | `POST` | `/api/notes` | Create a note |
-| `PUT` | `/api/notes/:id` | Update a note |
+| `PUT` | `/api/notes/:id` | Update title, content, image, or pin state |
 | `DELETE` | `/api/notes/:id` | Delete a note |
 | `POST` | `/api/notes/:id/pin` | Toggle pinned state |
 
-### WebSocket
+### WebSocket Messages
 
 Clients connect to the same server host over WebSocket and receive messages shaped like:
 
@@ -162,9 +201,11 @@ Clients connect to the same server host over WebSocket and receive messages shap
 { "type": "notes", "data": [...] }
 ```
 
-The app always broadcasts the full note array. It does not use diff-based sync.
+This project does not use diff-based sync. It broadcasts the full note array after each create, update, delete, or pin action.
 
 ## Data Model
+
+### Note
 
 ```ts
 type Note = {
@@ -176,7 +217,11 @@ type Note = {
   created_at: string;
   updated_at: string;
 };
+```
 
+### NoteImage
+
+```ts
 type NoteImage = {
   kind: 'upload' | 'drawing';
   mimeType: string;
@@ -186,27 +231,51 @@ type NoteImage = {
 };
 ```
 
-## Important Constraints
+### Accepted Media Types
+
+- `image/png`
+- `image/jpeg`
+- `image/webp`
+
+## Behavior And Constraints
+
+### Storage
 
 - Notes are stored in memory only
-- Restarting the backend resets the data
-- The server starts with seeded template notes
-- Images are stored as data URLs inside note objects
-- Accepted image MIME types are `image/png`, `image/jpeg`, and `image/webp`
+- Restarting the server resets all note data
+- The app starts with seeded template notes
+- There is no database or persistence layer
 
-## What This Project Covers
+### Images
 
-This project includes work across:
+- Images are stored as data URLs inside the note object
+- Uploaded images are resized in the browser before being sent
+- Sketches are generated from the admin canvas and stored as note images
+- Invalid or unsupported image payloads are normalized to `null`
 
-- Real-time sync from browser to device
-- Glasses-oriented UI rendering with text fallback for images
-- Client-side image and sketch preprocessing before sending note data
-- A small backend, admin UI, and device runtime working together
+### Sorting
+
+Both the admin UI and the glasses app sort notes the same way:
+
+1. Pinned notes first
+2. Newer `updated_at` values first
+
+### Port Fallback
+
+Default port order:
+
+1. `PORT` from environment, if set
+2. `3212`
+3. `3213`
+4. `3002`
+5. `4321`
+
+If one port is occupied, the server tries the next one.
 
 ## Related Docs
 
 - `docs.md` for the longer technical walkthrough
-- `PROJECT_ONE_PAGER.md` for the short portfolio-style summary
+- `PROJECT_ONE_PAGER.md` for the portfolio-style project summary
 
 ## Resume Summary
 
