@@ -180,14 +180,14 @@ type NoteImage = {
 - Images are stored as data URLs inside note objects
 - Accepted image MIME types are `image/png`, `image/jpeg`, and `image/webp`
 
-## Why This Project Is Interesting
+## What This Project Covers
 
-This project is a compact example of:
+This project includes work across:
 
-- A real-time browser-to-device sync loop
-- Wearable UI constraints and fallback rendering
-- Client-side media preprocessing before transport
-- A full-stack prototype that is small enough to understand quickly
+- Real-time sync from browser to device
+- Glasses-oriented UI rendering with text fallback for images
+- Client-side image and sketch preprocessing before sending note data
+- A small backend, admin UI, and device runtime working together
 
 ## Related Docs
 
